@@ -8,8 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class PhoneRequest {
-    private String number;
-    private String cityCode;
-    private String contryCode;
-
+    private String number, cityCode, contryCode;
 }

@@ -2,6 +2,7 @@ package com.nisum.latam.service.impl;
 
 import com.nisum.latam.entities.Phone;
 import com.nisum.latam.entities.User;
+import com.nisum.latam.model.PhoneRequest;
 import com.nisum.latam.model.UserRequest;
 import com.nisum.latam.repository.UserRepository;
 import com.nisum.latam.service.UserService;
@@ -16,8 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.nisum.latam.util.Constant.EMAIL_REGEX;
-import static com.nisum.latam.util.Constant.PASSWORD_REGEX;
+import static com.nisum.latam.util.ConstantUtil.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,44 +26,38 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     public User registerUser(UserRequest userRequest) {
-        // Validar el formato del correo y la clave
+        validateUserRequest(userRequest);
+        User newUser = createUserFromRequest(userRequest);
+
+        return userRepository.save(newUser);
+    }
+
+    private void validateUserRequest(UserRequest userRequest) {
         if (!isValidEmail(userRequest.getEmail())) {
-            throw new UserRegistrationException("El formato del correo es incorrecto");
+            throw new UserRegistrationException(FORMAT_MAIL_INVALID);
         }
-
         if (!isValidPassword(userRequest.getPassword())) {
-            throw new UserRegistrationException("El formato de la clave es incorrecto");
+            throw new UserRegistrationException(FORMAT_PASS_INVALID);
         }
-
-        // Verificar si el correo ya existe
         User existingUser = userRepository.findByEmail(userRequest.getEmail());
         if (existingUser != null) {
-            throw new UserRegistrationException("El correo ya registrado");
+            throw new UserRegistrationException(REGISTERED_MAIL);
         }
+    }
 
-        // Crear un nuevo usuario
+    private User createUserFromRequest(UserRequest userRequest) {
         User newUser = new User();
-        UUID userId = UUID.randomUUID();
-        Date currentDate = new Date();
-
-        newUser.setId(userId);
+        newUser.setId(UUID.randomUUID());
         newUser.setName(userRequest.getName());
         newUser.setEmail(userRequest.getEmail());
         newUser.setPassword(userRequest.getPassword());
 
-        // Convertir PhoneRequest a Phone y asignar a la lista de phones
         List<Phone> phones = userRequest.getPhones().stream()
-                .map(phoneRequest -> {
-                    Phone phone = new Phone();
-                    phone.setNumber(phoneRequest.getNumber());
-                    phone.setCityCode(phoneRequest.getCityCode());
-                    phone.setCountryCode(phoneRequest.getContryCode());
-                    return phone;
-                })
+                .map(this::createPhoneFromRequest)
                 .collect(Collectors.toList());
         newUser.setPhones(phones);
 
-        // Configurar fechas y campos adicionales
+        Date currentDate = new Date();
         newUser.setCreated(currentDate);
         newUser.setModified(currentDate);
         newUser.setLastLogin(currentDate);
@@ -72,18 +66,21 @@ public class UserServiceImpl implements UserService {
         newUser.setToken(accessToken);
         newUser.setActive(true);
 
-        // Guardar el nuevo usuario en la base de datos
-        return userRepository.save(newUser);
+        return newUser;
+    }
+    private Phone createPhoneFromRequest(PhoneRequest phoneRequest) {
+        Phone phone = new Phone();
+        phone.setNumber(phoneRequest.getNumber());
+        phone.setCityCode(phoneRequest.getCityCode() != null ? phoneRequest.getCityCode() : "");
+        phone.setCountryCode(phoneRequest.getContryCode() != null ? phoneRequest.getContryCode() : "");
+        return phone;
     }
     private boolean isValidEmail(String email) {
-        // Validar el formato del correo usando una expresión regular
         Pattern emailPattern = Pattern.compile(EMAIL_REGEX);
         Matcher emailMatcher = emailPattern.matcher(email);
         return emailMatcher.matches();
     }
-
     private boolean isValidPassword(String password) {
-        // Validar el formato de la clave usando una expresión regular
         Pattern passwordPattern = Pattern.compile(PASSWORD_REGEX);
         Matcher passwordMatcher = passwordPattern.matcher(password);
         return passwordMatcher.matches();

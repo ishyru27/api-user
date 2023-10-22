@@ -1,5 +1,7 @@
 package com.nisum.latam.service;
+
 import com.nisum.latam.entities.User;
+import com.nisum.latam.model.PhoneRequest;
 import com.nisum.latam.model.UserRequest;
 import com.nisum.latam.repository.UserRepository;
 import com.nisum.latam.service.impl.UserServiceImpl;
@@ -11,6 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,13 +34,18 @@ public class UserServiceImplTest {
 
     @Test
     public void testRegisterUser() {
-        // Mock de la solicitud de registro
         UserRequest userRequest = new UserRequest();
         userRequest.setName("Juan Rodriguez");
         userRequest.setEmail("juan@rodriguez.org");
         userRequest.setPassword("Hunters2");
 
-        // Mock de usuario registrado exitosamente
+        List<PhoneRequest> phoneRequests = List.of(
+                new PhoneRequest("1234567", "123", "1"),
+                new PhoneRequest("9876543", "456", "7")
+        );
+        userRequest.setPhones(phoneRequests);
+
+
         User savedUser = new User();
         savedUser.setId(UUID.randomUUID());
         savedUser.setName(userRequest.getName());
@@ -50,14 +58,11 @@ public class UserServiceImplTest {
         savedUser.setToken(UUID.randomUUID().toString());
         savedUser.setActive(true);
 
-        // Configuración de Mockito
         Mockito.when(userRepository.findByEmail(userRequest.getEmail())).thenReturn(null);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(savedUser);
 
-        // Llamada al servicio
         User registeredUser = userService.registerUser(userRequest);
 
-        // Verificar que el usuario registrado sea igual al objeto mock de usuario registrado
         assertNotNull(registeredUser.getId());
         assertEquals(userRequest.getName(), registeredUser.getName());
         assertEquals(userRequest.getEmail(), registeredUser.getEmail());

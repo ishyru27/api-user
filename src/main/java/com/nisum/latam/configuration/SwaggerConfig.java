@@ -21,7 +21,7 @@ public class SwaggerConfig {
     public static final ApiInfo DEFAULT_API_INFO = new ApiInfoBuilder()
             .title("Nisum - API USER")
             .description(
-                    "Api para la inserción de usuarios.")
+                    "Api para la creacion de usuarios.")
             .version("V1.0.0").license("Apache 2.0").licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")
             .contact(DEFAULT_CONTACT).build();
 

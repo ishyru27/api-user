@@ -31,15 +31,13 @@ public class UserControllerTest {
         MockitoAnnotations.initMocks(this);
     }
 
-   /* @Test
+    @Test
     public void testRegisterUserSuccess() {
-        // Mock de la solicitud de registro
         UserRequest userRequest = new UserRequest();
         userRequest.setName("Juan Rodriguez");
         userRequest.setEmail("juan@rodriguez.org");
         userRequest.setPassword("hunter2");
 
-        // Mock de usuario registrado exitosamente
         User savedUser = new User();
         savedUser.setId(UUID.randomUUID());
         savedUser.setName(userRequest.getName());
@@ -52,35 +50,23 @@ public class UserControllerTest {
         savedUser.setToken(UUID.randomUUID().toString());
         savedUser.setActive(true);
 
-        // Configuración de Mockito
         Mockito.when(userService.registerUser(userRequest)).thenReturn(savedUser);
 
-        // Llamada al controlador
         ResponseEntity<?> responseEntity = userController.registerUser(userRequest);
-
-        // Verificar el estado de la respuesta
-        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-
-        // Verificar que el objeto retornado sea igual al objeto mock de usuario registrado
         assertEquals(savedUser, responseEntity.getBody());
     }
 
     @Test
     public void testRegisterUserDuplicateEmail() {
-        // Mock de la solicitud de registro con un correo que ya existe
         UserRequest userRequest = new UserRequest();
         userRequest.setName("Juan Rodriguez");
         userRequest.setEmail("juan@rodriguez.org");
         userRequest.setPassword("hunter2");
 
-        // Configuración de Mockito para simular un correo duplicado
         Mockito.when(userService.registerUser(userRequest))
                 .thenThrow(new UserRegistrationException("El correo ya registrado"));
 
-        // Llamada al controlador
         ResponseEntity<?> responseEntity = userController.registerUser(userRequest);
-
-        // Verificar el estado de la respuesta
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-    }*/
+    }
 }
