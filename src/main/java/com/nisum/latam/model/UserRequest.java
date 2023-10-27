@@ -10,9 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class UserRequest {
-    private String name;
-    private String email;
-    private String password;
+    private String name, email, password;
     private List<PhoneRequest> phones;
-
 }
